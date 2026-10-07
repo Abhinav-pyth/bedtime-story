@@ -4,9 +4,10 @@ A premium mobile-first bedtime story web application designed for children and p
 
 ## ✨ Features
 
-- **20 Original Bedtime Stories** - Complete, magical stories written for children
+- **40 Original Bedtime Stories** - 20 English + 20 Hindi stories written for children
+- **Bilingual Support** - Switch between English and Hindi with one tap
 - **Text-to-Speech Narration** - Browser-based storytelling using Web Speech API
-- **Ambient Sleep Sounds** - Rain, ocean, forest, fireplace and more
+- **16 Sleep Sounds** - 8 ambient nature sounds + 8 melody sounds (lullaby, flute, sitar, piano, etc.)
 - **Sleep Timer** - Auto-stop with fade-out (10/20/30/45/60 minutes)
 - **Night Mode Themes** - Midnight, Purple Dream, Moonlight
 - **Story Categories** - Magical, Fantasy, Animals, Adventure, Fairy Tales, Nature, Friendship, Sleep, Moral
@@ -43,21 +44,35 @@ The built files will be in the `dist/` directory.
 
 ## 🎵 Audio File Setup
 
-Ambient sounds are loaded from `/public/audio/`. Place your audio files there:
+Sounds are loaded from `/public/audio/`. Place your audio files there:
 
+### Ambient Nature Sounds (8 files)
 ```
 public/audio/
-├── rain.mp3
-├── heavy-rain.mp3
-├── ocean.mp3
-├── forest.mp3
-├── fireplace.mp3
-├── crickets.mp3
-├── wind.mp3
-└── sparkles.mp3
+├── rain.mp3          # Gentle Rain
+├── heavy-rain.mp3    # Heavy Rain
+├── ocean.mp3         # Ocean Waves
+├── forest.mp3        # Forest Night
+├── fireplace.mp3     # Fireplace
+├── crickets.mp3      # Night Crickets
+├── wind.mp3          # Soft Wind
+└── sparkles.mp3      # Magical Sparkles
 ```
 
-If audio files are not present, the corresponding sounds will be gracefully disabled without breaking the app.
+### Melody Background Sounds (8 files)
+```
+public/audio/
+├── lullaby.mp3       # लोरी (Lullaby)
+├── flute.mp3         # बांसुरी (Flute)
+├── sitar.mp3         # सितार (Sitar)
+├── piano.mp3         # पियानो (Piano)
+├── harp.mp3          # वीणा (Harp)
+├── bells.mp3         # घंटियाँ (Bells)
+├── wind-chimes.mp3   # हवा की घंटी (Wind Chimes)
+└── music-box.mp3     # म्यूज़िक बॉक्स (Music Box)
+```
+
+**Note:** If audio files are not present, the corresponding sounds will be gracefully disabled without breaking the app. You can use any royalty-free audio files for these sounds.
 
 ## 🗣️ Browser Speech Synthesis
 

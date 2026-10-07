@@ -6,10 +6,13 @@ import {
   ChevronRight, ArrowLeft, RotateCcw, Bookmark
 } from 'lucide-react';
 import { stories, categories, ambientSounds, Story } from './data/stories';
+import { hindiStories, melodySounds } from './data/hindiStories';
 import { 
   useSpeechSynthesis, useAudioPlayer, useSleepTimer, 
   useFavorites, useReadingProgress, useTheme, useSettings, useSEO, ThemeMode 
 } from './hooks/useApp';
+
+type Language = 'en' | 'hi';
 
 // ============ TYPES ============
 type Page = 'home' | 'stories' | 'sleep' | 'favorites' | 'settings' | 'reader';
@@ -106,13 +109,14 @@ function StoryCover({ cover, size = 'md' }: { cover: string; size?: 'sm' | 'md' 
 }
 
 // ============ BOTTOM NAVIGATION ============
-function BottomNav({ currentPage, onNavigate }: { currentPage: Page; onNavigate: (page: Page) => void }) {
+function BottomNav({ currentPage, onNavigate, language }: { currentPage: Page; onNavigate: (page: Page) => void; language: Language }) {
+  const isHindi = language === 'hi';
   const navItems = [
-    { id: 'home' as Page, icon: Home, label: 'Home' },
-    { id: 'stories' as Page, icon: BookOpen, label: 'Stories' },
-    { id: 'sleep' as Page, icon: Moon, label: 'Sleep' },
-    { id: 'favorites' as Page, icon: Heart, label: 'Favorites' },
-    { id: 'settings' as Page, icon: Settings, label: 'Settings' },
+    { id: 'home' as Page, icon: Home, label: isHindi ? 'होम' : 'Home' },
+    { id: 'stories' as Page, icon: BookOpen, label: isHindi ? 'कहानियाँ' : 'Stories' },
+    { id: 'sleep' as Page, icon: Moon, label: isHindi ? 'सुलाब' : 'Sleep' },
+    { id: 'favorites' as Page, icon: Heart, label: isHindi ? 'पसंदीदा' : 'Favorites' },
+    { id: 'settings' as Page, icon: Settings, label: isHindi ? 'सेटिंग्स' : 'Settings' },
   ];
 
   return (
@@ -140,16 +144,28 @@ function BottomNav({ currentPage, onNavigate }: { currentPage: Page; onNavigate:
 }
 
 // ============ HOME PAGE ============
-function HomePage({ onNavigate, onOpenStory }: { onNavigate: (page: Page) => void; onOpenStory: (story: Story) => void }) {
+function HomePage({ onNavigate, onOpenStory, language, setLanguage, allStories }: { onNavigate: (page: Page) => void; onOpenStory: (story: Story) => void; language: Language; setLanguage: (lang: Language) => void; allStories: Story[] }) {
   const { lastRead, getProgress } = useReadingProgress();
-  const lastReadStory = lastRead ? stories.find(s => s.id === lastRead) : null;
+  const lastReadStory = lastRead ? allStories.find(s => s.id === lastRead) : null;
   const lastReadProgress = lastRead ? getProgress(lastRead) : 0;
-  const tonightPick = stories[0]; // Moonlight Kingdom
+  const tonightPick = allStories[0]; // First story (Moonlight Kingdom or चंदा मामा)
+  const isHindi = language === 'hi';
 
   return (
     <div className="pb-24 animate-fade-in">
+      {/* Language Toggle */}
+      <div className="flex justify-end px-6 pt-4">
+        <button
+          onClick={() => setLanguage(isHindi ? 'en' : 'hi')}
+          className="px-3 py-1.5 rounded-full glass-light text-xs text-indigo-200 flex items-center gap-1.5 hover:bg-indigo-700/30 transition-all"
+          title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+        >
+          <span>{isHindi ? '🇬🇧 English' : '🇮🇳 हिंदी'}</span>
+        </button>
+      </div>
+      
       {/* Hero Section */}
-      <div className="relative px-6 pt-12 pb-8 text-center overflow-hidden">
+      <div className="relative px-6 pt-8 pb-8 text-center overflow-hidden">
         {/* Background clouds */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-16 -left-10 w-40 h-16 bg-indigo-800/20 rounded-full blur-xl animate-float-slow" />
@@ -177,19 +193,21 @@ function HomePage({ onNavigate, onOpenStory }: { onNavigate: (page: Page) => voi
         </div>
         
         <p className="text-indigo-400 text-xs font-medium uppercase tracking-widest mb-2">DreamyTales</p>
-        <h1 className="text-3xl font-bold text-indigo-50 mb-2">Good Night 🌙</h1>
+        <h1 className="text-3xl font-bold text-indigo-50 mb-2">
+          {isHindi ? 'शुभ रात्रि 🌙' : 'Good Night 🌙'}
+        </h1>
         <p className="text-indigo-300 text-lg leading-relaxed mb-1">
-          What magical adventure
+          {isHindi ? 'आज रात कौन सा जादुई' : 'What magical adventure'}
         </p>
         <p className="text-indigo-300 text-lg leading-relaxed">
-          will you dream about tonight?
+          {isHindi ? 'सपना देखोगे?' : 'will you dream about tonight?'}
         </p>
         
         <button
           onClick={() => onOpenStory(tonightPick)}
           className="mt-6 px-8 py-3.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-indigo-900 font-bold rounded-full shadow-lg shadow-amber-400/30 hover:shadow-amber-400/50 transition-all duration-300 active:scale-95 text-base"
         >
-          ✨ Start Tonight's Story
+          ✨ {isHindi ? 'आज की कहानी शुरू करें' : "Start Tonight's Story"}
         </button>
       </div>
 
@@ -202,12 +220,14 @@ function HomePage({ onNavigate, onOpenStory }: { onNavigate: (page: Page) => voi
           >
             <StoryCover cover={lastReadStory.cover} size="sm" />
             <div className="flex-1 min-w-0">
-              <p className="text-amber-300 text-xs font-medium mb-1">Continue Reading</p>
+              <p className="text-amber-300 text-xs font-medium mb-1">
+                {isHindi ? 'पढ़ना जारी रखें' : 'Continue Reading'}
+              </p>
               <p className="text-indigo-100 font-semibold truncate">{lastReadStory.title}</p>
               <div className="mt-2 h-1.5 bg-indigo-800 rounded-full overflow-hidden">
                 <div className="h-full bg-amber-400 rounded-full transition-all" style={{ width: `${lastReadProgress}%` }} />
               </div>
-              <p className="text-indigo-400 text-xs mt-1">{lastReadProgress}% complete</p>
+              <p className="text-indigo-400 text-xs mt-1">{lastReadProgress}% {isHindi ? 'पूर्ण' : 'complete'}</p>
             </div>
             <ChevronRight size={20} className="text-indigo-400" />
           </button>
@@ -216,7 +236,9 @@ function HomePage({ onNavigate, onOpenStory }: { onNavigate: (page: Page) => voi
 
       {/* Tonight's Pick */}
       <div className="px-6 mb-8">
-        <h2 className="text-lg font-bold text-indigo-100 mb-3">Tonight's Pick</h2>
+        <h2 className="text-lg font-bold text-indigo-100 mb-3">
+          {isHindi ? 'आज की कहानी' : "Tonight's Pick"}
+        </h2>
         <button
           onClick={() => onOpenStory(tonightPick)}
           className="w-full rounded-2xl overflow-hidden glass-light hover:bg-indigo-800/30 transition-all text-left"
@@ -240,7 +262,9 @@ function HomePage({ onNavigate, onOpenStory }: { onNavigate: (page: Page) => voi
 
       {/* Categories */}
       <div className="mb-8">
-        <h2 className="text-lg font-bold text-indigo-100 px-6 mb-3">Choose Your Dream</h2>
+        <h2 className="text-lg font-bold text-indigo-100 px-6 mb-3">
+          {isHindi ? 'अपना सपना चुनें' : 'Choose Your Dream'}
+        </h2>
         <div className="flex overflow-x-auto gap-3 px-6 pb-2 hide-scrollbar">
           {categories.filter(c => c.id !== 'all').map(cat => (
             <button
@@ -257,9 +281,9 @@ function HomePage({ onNavigate, onOpenStory }: { onNavigate: (page: Page) => voi
 
       {/* Popular Tonight */}
       <div className="px-6 mb-8">
-        <h2 className="text-lg font-bold text-indigo-100 mb-3">Popular Tonight</h2>
+        <h2 className="text-lg font-bold text-indigo-100 mb-3">{isHindi ? 'आज की लोकप्रिय' : 'Popular Tonight'}</h2>
         <div className="grid grid-cols-2 gap-3">
-          {stories.slice(1, 5).map(story => (
+          {allStories.slice(1, 5).map(story => (
             <StoryCard key={story.id} story={story} onClick={() => onOpenStory(story)} />
           ))}
         </div>
@@ -268,9 +292,11 @@ function HomePage({ onNavigate, onOpenStory }: { onNavigate: (page: Page) => voi
       {/* Sleep Sounds Preview */}
       <div className="px-6 mb-8">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-indigo-100">Sleep Sounds</h2>
+          <h2 className="text-lg font-bold text-indigo-100">
+            {isHindi ? 'सुलाब ध्वनियाँ' : 'Sleep Sounds'}
+          </h2>
           <button onClick={() => onNavigate('sleep')} className="text-xs text-amber-300 flex items-center gap-1">
-            See all <ChevronRight size={12} />
+            {isHindi ? 'सभी देखें' : 'See all'} <ChevronRight size={12} />
           </button>
         </div>
         <div className="flex overflow-x-auto gap-3 pb-2 hide-scrollbar">
@@ -336,16 +362,17 @@ function StoryCard({ story, onClick, showFavorite = true, isFavorite, onToggleFa
 }
 
 // ============ STORIES PAGE ============
-function StoriesPage({ onOpenStory }: { onOpenStory: (story: Story) => void }) {
+function StoriesPage({ onOpenStory, language, allStories }: { onOpenStory: (story: Story) => void; language: Language; allStories: Story[] }) {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [ageFilter, setAgeFilter] = useState('all');
   const { isFavorite, toggleFavorite } = useFavorites();
+  const isHindi = language === 'hi';
 
   const ageRanges = ['all', '3-6', '4-8', '5-9', '6-10'];
 
   const filteredStories = useMemo(() => {
-    return stories.filter(story => {
+    return allStories.filter(story => {
       const matchesSearch = search === '' || 
         story.title.toLowerCase().includes(search.toLowerCase()) ||
         story.description.toLowerCase().includes(search.toLowerCase()) ||
@@ -359,7 +386,7 @@ function StoriesPage({ onOpenStory }: { onOpenStory: (story: Story) => void }) {
       
       return matchesSearch && matchesCategory && matchesAge;
     });
-  }, [search, activeCategory, ageFilter]);
+  }, [search, activeCategory, ageFilter, allStories]);
 
   return (
     <div className="pb-24 animate-fade-in">
@@ -453,7 +480,7 @@ function StoriesPage({ onOpenStory }: { onOpenStory: (story: Story) => void }) {
 }
 
 // ============ STORY READER ============
-function StoryReader({ story, onBack }: { story: Story; onBack: () => void }) {
+function StoryReader({ story, onBack, language }: { story: Story; onBack: () => void; language: Language }) {
   const { 
     isPlaying, isPaused, currentParagraph, voices, selectedVoice, 
     setSelectedVoice, rate, setRate, play, pause, resume, stop, 
@@ -467,6 +494,7 @@ function StoryReader({ story, onBack }: { story: Story; onBack: () => void }) {
   const [storyComplete, setStoryComplete] = useState(false);
   const [immersiveMode, setImmersiveMode] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const isHindi = language === 'hi';
 
   useEffect(() => {
     if (isPlaying && totalParagraphs > 0) {
@@ -781,20 +809,23 @@ function StoryReader({ story, onBack }: { story: Story; onBack: () => void }) {
 }
 
 // ============ SLEEP PAGE ============
-function SleepPage() {
+function SleepPage({ language }: { language: Language }) {
   const audioPlayer = useAudioPlayer();
   const sleepTimer = useSleepTimer(() => {
     audioPlayer.stop();
   });
   const [showTimerOptions, setShowTimerOptions] = useState(false);
+  const [soundTab, setSoundTab] = useState<'ambient' | 'melody'>('ambient');
+  const isHindi = language === 'hi';
   const timerOptions = [
-    { label: 'Off', value: 0 },
+    { label: isHindi ? 'बंद' : 'Off', value: 0 },
     { label: '10 min', value: 10 },
     { label: '20 min', value: 20 },
     { label: '30 min', value: 30 },
     { label: '45 min', value: 45 },
     { label: '60 min', value: 60 },
   ];
+  const allSounds = [...ambientSounds, ...melodySounds];
 
   return (
     <div className="pb-24 animate-fade-in">
@@ -896,11 +927,41 @@ function SleepPage() {
         )}
       </div>
 
+      {/* Sound Tabs */}
+      <div className="px-6 mb-4">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setSoundTab('ambient')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
+              soundTab === 'ambient'
+                ? 'bg-amber-400 text-indigo-900'
+                : 'glass-light text-indigo-300'
+            }`}
+          >
+            {isHindi ? 'वातावरण ध्वनियाँ' : 'Ambient Sounds'}
+          </button>
+          <button
+            onClick={() => setSoundTab('melody')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${
+              soundTab === 'melody'
+                ? 'bg-amber-400 text-indigo-900'
+                : 'glass-light text-indigo-300'
+            }`}
+          >
+            {isHindi ? 'संगीत धुन' : 'Melody Sounds'} 🎵
+          </button>
+        </div>
+      </div>
+
       {/* Sound Grid */}
       <div className="px-6">
-        <h2 className="text-lg font-bold text-indigo-100 mb-4">Choose Your Sound</h2>
+        <h2 className="text-lg font-bold text-indigo-100 mb-4">
+          {soundTab === 'ambient' 
+            ? (isHindi ? 'प्रकृति की ध्वनियाँ' : 'Nature Sounds')
+            : (isHindi ? 'संगीत की धुन' : 'Musical Melodies')}
+        </h2>
         <div className="grid grid-cols-2 gap-3">
-          {ambientSounds.map(sound => (
+          {(soundTab === 'ambient' ? ambientSounds : melodySounds).map(sound => (
             <button
               key={sound.id}
               onClick={() => {
@@ -941,9 +1002,10 @@ function SleepPage() {
 }
 
 // ============ FAVORITES PAGE ============
-function FavoritesPage({ onOpenStory }: { onOpenStory: (story: Story) => void }) {
+function FavoritesPage({ onOpenStory, language, allStories }: { onOpenStory: (story: Story) => void; language: Language; allStories: Story[] }) {
   const { favorites, toggleFavorite } = useFavorites();
-  const favoriteStories = stories.filter(s => favorites.includes(s.id));
+  const favoriteStories = allStories.filter(s => favorites.includes(s.id));
+  const isHindi = language === 'hi';
 
   return (
     <div className="pb-24 animate-fade-in">
@@ -987,9 +1049,10 @@ function FavoritesPage({ onOpenStory }: { onOpenStory: (story: Story) => void })
 }
 
 // ============ SETTINGS PAGE ============
-function SettingsPage() {
+function SettingsPage({ language, setLanguage }: { language: Language; setLanguage: (lang: Language) => void }) {
   const { theme, setTheme } = useTheme();
   const { settings, updateSettings } = useSettings();
+  const isHindi = language === 'hi';
 
   const themes: { id: ThemeMode; name: string; desc: string; color: string }[] = [
     { id: 'midnight', name: 'Midnight', desc: 'Deep navy background', color: 'bg-slate-900' },
@@ -1002,6 +1065,37 @@ function SettingsPage() {
       <div className="px-6 pt-8 pb-4">
         <h1 className="text-2xl font-bold text-indigo-100 mb-1">Settings</h1>
         <p className="text-indigo-400 text-sm">Customize your experience</p>
+      </div>
+
+      {/* Language */}
+      <div className="px-6 mb-6">
+        <h2 className="text-sm font-semibold text-indigo-300 mb-3 uppercase tracking-wide">
+          {isHindi ? 'भाषा / Language' : 'Language / भाषा'}
+        </h2>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setLanguage('en')}
+            className={`flex-1 p-4 rounded-xl text-center transition-all ${
+              language === 'en'
+                ? 'bg-amber-400/20 border-2 border-amber-400/50'
+                : 'glass-light hover:bg-indigo-700/30'
+            }`}
+          >
+            <span className="text-2xl block mb-1">🇬🇧</span>
+            <span className="text-sm font-medium text-indigo-200">English</span>
+          </button>
+          <button
+            onClick={() => setLanguage('hi')}
+            className={`flex-1 p-4 rounded-xl text-center transition-all ${
+              language === 'hi'
+                ? 'bg-amber-400/20 border-2 border-amber-400/50'
+                : 'glass-light hover:bg-indigo-700/30'
+            }`}
+          >
+            <span className="text-2xl block mb-1">🇮🇳</span>
+            <span className="text-sm font-medium text-indigo-200">हिंदी</span>
+          </button>
+        </div>
       </div>
 
       {/* Theme */}
@@ -1143,13 +1237,18 @@ function ToggleSetting({ label, checked, onChange }: { label: string; checked: b
 }
 
 // ============ SEO DATA HELPER ============
-function getSEOData(page: Page, story: Story | null) {
+function getSEOData(page: Page, story: Story | null, language: Language = 'en') {
   const baseUrl = 'https://dreamytales.app';
+  const isHindi = language === 'hi';
   
   if (page === 'reader' && story) {
     return {
-      title: `${story.title} – DreamyTales Bedtime Story`,
-      description: `${story.description} A ${story.category.toLowerCase()} bedtime story for ages ${story.ageRange}. Duration: ${story.duration}. Read or listen with calming narration.`,
+      title: isHindi 
+        ? `${story.title} – DreamyTales हिंदी कहानी`
+        : `${story.title} – DreamyTales Bedtime Story`,
+      description: isHindi
+        ? `${story.description} ${story.category} कहानी, उम्र ${story.ageRange} के लिए। अवधि: ${story.duration}। पढ़ें या सुनें।`
+        : `${story.description} A ${story.category.toLowerCase()} bedtime story for ages ${story.ageRange}. Duration: ${story.duration}. Read or listen with calming narration.`,
       url: `${baseUrl}/stories/${story.id}`,
       type: 'article' as const,
     };
@@ -1158,32 +1257,44 @@ function getSEOData(page: Page, story: Story | null) {
   switch (page) {
     case 'stories':
       return {
-        title: 'Story Library – DreamyTales',
-        description: 'Browse 20 magical bedtime stories for children ages 3-10. Filter by category, age, or search for your perfect bedtime adventure.',
+        title: isHindi ? 'कहानी संग्रह – DreamyTales' : 'Story Library – DreamyTales',
+        description: isHindi 
+          ? '20 जादुई कहानियाँ देखें। श्रेणी, उम्र के अनुसार खोजें या खोज बार का उपयोग करें।'
+          : 'Browse 20 magical bedtime stories for children ages 3-10. Filter by category, age, or search for your perfect bedtime adventure.',
         url: `${baseUrl}/stories`,
       };
     case 'sleep':
       return {
-        title: 'Sleep Sounds & Timer – DreamyTales',
-        description: 'Drift off to sleep with calming ambient sounds including gentle rain, ocean waves, forest night, and fireplace. Set a sleep timer for peaceful rest.',
+        title: isHindi ? 'सुलाब ध्वनियाँ – DreamyTales' : 'Sleep Sounds & Timer – DreamyTales',
+        description: isHindi
+          ? 'शांत ध्वनियों के साथ सो जाएँ - बारिश, समुद्र, जंगल, आग की अंगीठी। सुलाब टाइमर से शांति से सोएँ।'
+          : 'Drift off to sleep with calming ambient sounds including gentle rain, ocean waves, forest night, and fireplace. Set a sleep timer for peaceful rest.',
         url: `${baseUrl}/sleep`,
       };
     case 'favorites':
       return {
-        title: 'My Favorite Stories – DreamyTales',
-        description: 'Your collection of favorite bedtime stories. Save and revisit magical tales that bring sweet dreams.',
+        title: isHindi ? 'मेरी पसंदीदा कहानियाँ – DreamyTales' : 'My Favorite Stories – DreamyTales',
+        description: isHindi
+          ? 'आपकी पसंदीदा कहानियों का संग्रह। सुंदर सपने लाने वाली कहानियों को सहेजें।'
+          : 'Your collection of favorite bedtime stories. Save and revisit magical tales that bring sweet dreams.',
         url: `${baseUrl}/favorites`,
       };
     case 'settings':
       return {
-        title: 'Settings – DreamyTales',
-        description: 'Customize your DreamyTales experience. Adjust themes, narration speed, font size, and parent controls for the perfect bedtime routine.',
+        title: isHindi ? 'सेटिंग्स – DreamyTales' : 'Settings – DreamyTales',
+        description: isHindi
+          ? 'अपना अनुभव अनुकूलित करें। थीम, आवाज़ गति, फ़ॉन्ट आकार, और माता-पिता नियंत्रण बदलें।'
+          : 'Customize your DreamyTales experience. Adjust themes, narration speed, font size, and parent controls for the perfect bedtime routine.',
         url: `${baseUrl}/settings`,
       };
     default:
       return {
-        title: 'DreamyTales – Magical Bedtime Stories for Kids',
-        description: 'Discover 20 magical bedtime stories with calming narration, sleep sounds, and night mode. Perfect for children ages 3-10. Sweet dreams await!',
+        title: isHindi 
+          ? 'DreamyTales – बच्चों के लिए जादुई कहानियाँ'
+          : 'DreamyTales – Magical Bedtime Stories for Kids',
+        description: isHindi
+          ? '20 जादुई कहानियाँ, शांत आवाज़, सुलाब ध्वनियाँ, और नाइट मोड। 3-10 साल के बच्चों के लिए। मीठे सपने!'
+          : 'Discover 20 magical bedtime stories with calming narration, sleep sounds, and night mode. Perfect for children ages 3-10. Sweet dreams await!',
         url: baseUrl,
       };
   }
@@ -1193,10 +1304,21 @@ function getSEOData(page: Page, story: Story | null) {
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [currentStory, setCurrentStory] = useState<Story | null>(null);
+  const [language, setLanguage] = useState<Language>(() => {
+    return (localStorage.getItem('language') as Language) || 'en';
+  });
   const { theme } = useTheme();
   
+  // Save language preference
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+  
+  // Get stories based on language
+  const allStories = language === 'en' ? stories : hindiStories;
+  
   // SEO
-  const seoData = getSEOData(currentPage, currentStory);
+  const seoData = getSEOData(currentPage, currentStory, language);
   useSEO(seoData);
 
   const openStory = useCallback((story: Story) => {
@@ -1219,19 +1341,19 @@ export default function App() {
   const renderPage = () => {
     switch (currentPage) {
       case 'home':
-        return <HomePage onNavigate={navigate} onOpenStory={openStory} />;
+        return <HomePage onNavigate={navigate} onOpenStory={openStory} language={language} setLanguage={setLanguage} allStories={allStories} />;
       case 'stories':
-        return <StoriesPage onOpenStory={openStory} />;
+        return <StoriesPage onOpenStory={openStory} language={language} allStories={allStories} />;
       case 'sleep':
-        return <SleepPage />;
+        return <SleepPage language={language} />;
       case 'favorites':
-        return <FavoritesPage onOpenStory={openStory} />;
+        return <FavoritesPage onOpenStory={openStory} language={language} allStories={allStories} />;
       case 'settings':
-        return <SettingsPage />;
+        return <SettingsPage language={language} setLanguage={setLanguage} />;
       case 'reader':
-        return currentStory ? <StoryReader story={currentStory} onBack={goBack} /> : null;
+        return currentStory ? <StoryReader story={currentStory} onBack={goBack} language={language} /> : null;
       default:
-        return <HomePage onNavigate={navigate} onOpenStory={openStory} />;
+        return <HomePage onNavigate={navigate} onOpenStory={openStory} language={language} setLanguage={setLanguage} allStories={allStories} />;
     }
   };
 
@@ -1242,7 +1364,7 @@ export default function App() {
         {renderPage()}
       </div>
       {currentPage !== 'reader' && (
-        <BottomNav currentPage={currentPage} onNavigate={navigate} />
+        <BottomNav currentPage={currentPage} onNavigate={navigate} language={language} />
       )}
     </div>
   );
