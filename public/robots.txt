@@ -1,0 +1,20 @@
+# DreamyTales - Magical Bedtime Stories for Kids
+# https://dreamytales.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://dreamytales.app/sitemap.xml
+
+# Disallow audio files from being indexed (they're large)
+Disallow: /audio/
+
+# Allow all other content
+Allow: /stories/
+Allow: /sleep
+Allow: /favorites
+Allow: /settings
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

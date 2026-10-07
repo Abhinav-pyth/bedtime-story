@@ -8,7 +8,7 @@ import {
 import { stories, categories, ambientSounds, Story } from './data/stories';
 import { 
   useSpeechSynthesis, useAudioPlayer, useSleepTimer, 
-  useFavorites, useReadingProgress, useTheme, useSettings, ThemeMode 
+  useFavorites, useReadingProgress, useTheme, useSettings, useSEO, ThemeMode 
 } from './hooks/useApp';
 
 // ============ TYPES ============
@@ -1142,11 +1142,62 @@ function ToggleSetting({ label, checked, onChange }: { label: string; checked: b
   );
 }
 
+// ============ SEO DATA HELPER ============
+function getSEOData(page: Page, story: Story | null) {
+  const baseUrl = 'https://dreamytales.app';
+  
+  if (page === 'reader' && story) {
+    return {
+      title: `${story.title} – DreamyTales Bedtime Story`,
+      description: `${story.description} A ${story.category.toLowerCase()} bedtime story for ages ${story.ageRange}. Duration: ${story.duration}. Read or listen with calming narration.`,
+      url: `${baseUrl}/stories/${story.id}`,
+      type: 'article' as const,
+    };
+  }
+  
+  switch (page) {
+    case 'stories':
+      return {
+        title: 'Story Library – DreamyTales',
+        description: 'Browse 20 magical bedtime stories for children ages 3-10. Filter by category, age, or search for your perfect bedtime adventure.',
+        url: `${baseUrl}/stories`,
+      };
+    case 'sleep':
+      return {
+        title: 'Sleep Sounds & Timer – DreamyTales',
+        description: 'Drift off to sleep with calming ambient sounds including gentle rain, ocean waves, forest night, and fireplace. Set a sleep timer for peaceful rest.',
+        url: `${baseUrl}/sleep`,
+      };
+    case 'favorites':
+      return {
+        title: 'My Favorite Stories – DreamyTales',
+        description: 'Your collection of favorite bedtime stories. Save and revisit magical tales that bring sweet dreams.',
+        url: `${baseUrl}/favorites`,
+      };
+    case 'settings':
+      return {
+        title: 'Settings – DreamyTales',
+        description: 'Customize your DreamyTales experience. Adjust themes, narration speed, font size, and parent controls for the perfect bedtime routine.',
+        url: `${baseUrl}/settings`,
+      };
+    default:
+      return {
+        title: 'DreamyTales – Magical Bedtime Stories for Kids',
+        description: 'Discover 20 magical bedtime stories with calming narration, sleep sounds, and night mode. Perfect for children ages 3-10. Sweet dreams await!',
+        url: baseUrl,
+      };
+  }
+}
+
 // ============ MAIN APP ============
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [currentStory, setCurrentStory] = useState<Story | null>(null);
   const { theme } = useTheme();
+  
+  // SEO
+  const seoData = getSEOData(currentPage, currentStory);
+  useSEO(seoData);
 
   const openStory = useCallback((story: Story) => {
     setCurrentStory(story);

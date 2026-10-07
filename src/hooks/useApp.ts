@@ -367,6 +367,100 @@ export function useTheme() {
   return { theme, setTheme };
 }
 
+// ============ useSEO ============
+export interface SEOData {
+  title: string;
+  description: string;
+  url?: string;
+  image?: string;
+  type?: 'website' | 'article';
+}
+
+export function useSEO(data: SEOData) {
+  useEffect(() => {
+    // Update title
+    document.title = data.title;
+    
+    // Update meta description
+    const metaDesc = document.getElementById('meta-description') as HTMLMetaElement;
+    if (metaDesc) metaDesc.content = data.description;
+    
+    // Update Open Graph tags
+    const ogTitle = document.getElementById('og-title') as HTMLMetaElement;
+    if (ogTitle) ogTitle.content = data.title;
+    
+    const ogDesc = document.getElementById('og-description') as HTMLMetaElement;
+    if (ogDesc) ogDesc.content = data.description;
+    
+    // Update Twitter tags
+    const twitterTitle = document.getElementById('twitter-title') as HTMLMetaElement;
+    if (twitterTitle) twitterTitle.content = data.title;
+    
+    const twitterDesc = document.getElementById('twitter-description') as HTMLMetaElement;
+    if (twitterDesc) twitterDesc.content = data.description;
+    
+    // Update canonical URL if provided
+    if (data.url) {
+      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        document.head.appendChild(canonical);
+      }
+      canonical.href = data.url;
+    }
+    
+    // Add structured data for stories
+    if (data.type === 'article' && data.url) {
+      const existingScript = document.getElementById('story-jsonld');
+      if (existingScript) existingScript.remove();
+      
+      const script = document.createElement('script');
+      script.id = 'story-jsonld';
+      script.type = 'application/ld+json';
+      script.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": data.title,
+        "description": data.description,
+        "url": data.url,
+        "image": data.image || "https://dreamytales.app/og-image.jpg",
+        "author": {
+          "@type": "Organization",
+          "name": "DreamyTales"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "DreamyTales",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://dreamytales.app/icon-512.png"
+          }
+        },
+        "datePublished": "2024-01-01",
+        "dateModified": new Date().toISOString().split('T')[0],
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": data.url
+        },
+        "isFamilyFriendly": true,
+        "genre": "Bedtime Story",
+        "audience": {
+          "@type": "PeopleAudience",
+          "suggestedMinAge": 3,
+          "suggestedMaxAge": 10
+        }
+      });
+      document.head.appendChild(script);
+    }
+    
+    return () => {
+      const storyScript = document.getElementById('story-jsonld');
+      if (storyScript) storyScript.remove();
+    };
+  }, [data.title, data.description, data.url, data.image, data.type]);
+}
+
 // ============ useSettings ============
 export interface AppSettings {
   autoPlayNext: boolean;

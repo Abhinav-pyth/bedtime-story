@@ -85,20 +85,77 @@ The app includes a `manifest.json` for PWA installation. To enable full PWA supp
 
 ## 🌐 Deployment
 
-### Vercel
+### Vercel (Recommended)
+
+The app includes a `vercel.json` configuration file for seamless deployment.
+
+**Option 1: Vercel CLI**
+```bash
+npm install -g vercel
+vercel
+```
+
+**Option 2: Git Integration**
+1. Push your code to GitHub/GitLab/Bitbucket
+2. Import your repository at [vercel.com/new](https://vercel.com/new)
+3. Vercel will automatically detect the Vite configuration
+4. Click "Deploy"
+
+**Option 3: Vercel Dashboard**
 ```bash
 npm run build
-# Deploy the dist/ folder
+vercel --prod
 ```
+
+The `vercel.json` includes:
+- SPA rewrites for client-side routing
+- Optimized caching headers for assets
+- Security headers (X-Frame-Options, X-Content-Type-Options)
+- Audio file range request support
 
 ### Netlify
 ```bash
 npm run build
 # Set publish directory to dist/
+# Add redirect rule: /* /index.html 200
 ```
 
 ### Any Static Host
-The app is a static site - just serve the `dist/` folder.
+The app is a static site - just serve the `dist/` folder. Ensure your server redirects all routes to `index.html` for client-side routing.
+
+## 🔍 SEO
+
+The app is optimized for search engines with:
+
+- **Dynamic Meta Tags**: Title, description, and Open Graph tags update based on current page/story
+- **Structured Data**: JSON-LD markup for WebApplication, Organization, and FAQ
+- **Sitemap**: Static `sitemap.xml` listing all 20 story URLs
+- **Robots.txt**: Crawl instructions for search engines
+- **Semantic HTML**: Proper heading hierarchy and ARIA labels
+- **Performance**: Fast load times with optimized assets
+
+### Meta Tags by Page
+
+Each page has unique SEO-optimized meta tags:
+
+- **Home**: "DreamyTales – Magical Bedtime Stories for Kids"
+- **Stories**: "Story Library – DreamyTales"
+- **Sleep**: "Sleep Sounds & Timer – DreamyTales"
+- **Favorites**: "My Favorite Stories – DreamyTales"
+- **Settings**: "Settings – DreamyTales"
+- **Each Story**: "{Story Title} – DreamyTales Bedtime Story"
+
+### Open Graph & Twitter Cards
+
+All pages include Open Graph and Twitter Card meta tags for rich social media sharing.
+
+### Structured Data
+
+The app includes JSON-LD structured data for:
+- WebApplication schema (app information)
+- Organization schema (company info)
+- FAQ schema (common questions)
+- Article schema (individual stories)
 
 ## 🏗️ Technology Stack
 
