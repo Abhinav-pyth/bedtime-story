@@ -153,15 +153,21 @@ function HomePage({ onNavigate, onOpenStory, language, setLanguage, allStories }
 
   return (
     <div className="pb-24 animate-fade-in">
-      {/* Language Toggle */}
-      <div className="flex justify-end px-6 pt-4">
-        <button
-          onClick={() => setLanguage(isHindi ? 'en' : 'hi')}
-          className="px-3 py-1.5 rounded-full glass-light text-xs text-indigo-200 flex items-center gap-1.5 hover:bg-indigo-700/30 transition-all"
-          title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
-        >
-          <span>{isHindi ? '🇬🇧 English' : '🇮🇳 हिंदी'}</span>
-        </button>
+      {/* Language Toggle - More Prominent */}
+      <div className="px-6 pt-4">
+        <div className="flex justify-between items-center">
+          <div className="text-xs text-indigo-400">
+            {isHindi ? `${allStories.length} हिंदी कहानियाँ` : `${allStories.length} Stories`}
+          </div>
+          <button
+            onClick={() => setLanguage(isHindi ? 'en' : 'hi')}
+            className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-400/20 to-yellow-500/20 border border-amber-400/30 text-sm text-amber-200 flex items-center gap-2 hover:from-amber-400/30 hover:to-yellow-500/30 transition-all font-medium shadow-lg"
+            title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+          >
+            <span className="text-lg">{isHindi ? '🇬🇧' : '🇮🇳'}</span>
+            <span>{isHindi ? 'English' : 'हिंदी'}</span>
+          </button>
+        </div>
       </div>
       
       {/* Hero Section */}
@@ -284,7 +290,7 @@ function HomePage({ onNavigate, onOpenStory, language, setLanguage, allStories }
         <h2 className="text-lg font-bold text-indigo-100 mb-3">{isHindi ? 'आज की लोकप्रिय' : 'Popular Tonight'}</h2>
         <div className="grid grid-cols-2 gap-3">
           {allStories.slice(1, 5).map(story => (
-            <StoryCard key={story.id} story={story} onClick={() => onOpenStory(story)} />
+            <StoryCard key={story.id} story={story} onClick={() => onOpenStory(story)} language={language} />
           ))}
         </div>
       </div>
@@ -324,13 +330,15 @@ function HomePage({ onNavigate, onOpenStory, language, setLanguage, allStories }
 }
 
 // ============ STORY CARD ============
-function StoryCard({ story, onClick, showFavorite = true, isFavorite, onToggleFavorite }: {
+function StoryCard({ story, onClick, showFavorite = true, isFavorite, onToggleFavorite, language = 'en' }: {
   story: Story;
   onClick: () => void;
   showFavorite?: boolean;
   isFavorite?: boolean;
   onToggleFavorite?: () => void;
+  language?: Language;
 }) {
+  const isHindi = language === 'hi';
   return (
     <button
       onClick={onClick}
@@ -354,7 +362,7 @@ function StoryCard({ story, onClick, showFavorite = true, isFavorite, onToggleFa
         <div className="flex items-center gap-2 text-[10px] text-indigo-500">
           <span>{story.duration}</span>
           <span>•</span>
-          <span>Ages {story.ageRange}</span>
+          <span>{isHindi ? `${story.ageRange} साल` : `Ages ${story.ageRange}`}</span>
         </div>
       </div>
     </button>
@@ -362,7 +370,7 @@ function StoryCard({ story, onClick, showFavorite = true, isFavorite, onToggleFa
 }
 
 // ============ STORIES PAGE ============
-function StoriesPage({ onOpenStory, language, allStories }: { onOpenStory: (story: Story) => void; language: Language; allStories: Story[] }) {
+function StoriesPage({ onOpenStory, language, setLanguage, allStories }: { onOpenStory: (story: Story) => void; language: Language; setLanguage: (lang: Language) => void; allStories: Story[] }) {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [ageFilter, setAgeFilter] = useState('all');
@@ -391,8 +399,27 @@ function StoriesPage({ onOpenStory, language, allStories }: { onOpenStory: (stor
   return (
     <div className="pb-24 animate-fade-in">
       <div className="px-6 pt-8 pb-4">
-        <h1 className="text-2xl font-bold text-indigo-100 mb-1">Story Library</h1>
-        <p className="text-indigo-400 text-sm">Find your next magical adventure...</p>
+        {/* Language Toggle - Prominent */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-400/30 text-xs text-purple-200 font-medium">
+            {isHindi ? '🇮🇳 हिंदी' : '🇬🇧 English'} • {allStories.length} {isHindi ? 'कहानियाँ' : 'Stories'}
+          </div>
+          <button
+            onClick={() => setLanguage(isHindi ? 'en' : 'hi')}
+            className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-400/20 to-yellow-500/20 border border-amber-400/30 text-sm text-amber-200 flex items-center gap-2 hover:from-amber-400/30 hover:to-yellow-500/30 transition-all font-medium shadow-lg"
+            title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+          >
+            <span className="text-lg">{isHindi ? '🇬🇧' : '🇮🇳'}</span>
+            <span>{isHindi ? 'English' : 'हिंदी'}</span>
+          </button>
+        </div>
+        
+        <h1 className="text-2xl font-bold text-indigo-100 mb-1">
+          {isHindi ? 'कहानी संग्रह' : 'Story Library'}
+        </h1>
+        <p className="text-indigo-400 text-sm">
+          {isHindi ? 'अपनी अगली जादुई कहानी खोजें...' : 'Find your next magical adventure...'}
+        </p>
       </div>
 
       {/* Search */}
@@ -403,7 +430,7 @@ function StoriesPage({ onOpenStory, language, allStories }: { onOpenStory: (stor
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search stories..."
+            placeholder={isHindi ? 'कहानियाँ खोजें...' : 'Search stories...'}
             className="w-full pl-11 pr-4 py-3 rounded-xl glass-light text-indigo-100 placeholder-indigo-500 focus:outline-none focus:ring-2 focus:ring-amber-400/50"
             aria-label="Search stories"
           />
@@ -448,7 +475,7 @@ function StoriesPage({ onOpenStory, language, allStories }: { onOpenStory: (stor
                 : 'glass-light text-indigo-300 hover:text-indigo-100'
             }`}
           >
-            {age === 'all' ? 'All Ages' : `${age} years`}
+            {age === 'all' ? (isHindi ? 'सभी उम्र' : 'All Ages') : (isHindi ? `${age} साल` : `${age} years`)}
           </button>
         ))}
       </div>
@@ -458,8 +485,8 @@ function StoriesPage({ onOpenStory, language, allStories }: { onOpenStory: (stor
         {filteredStories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-4xl mb-3">🔍</p>
-            <p className="text-indigo-300">No stories found</p>
-            <p className="text-indigo-500 text-sm mt-1">Try a different search or filter</p>
+            <p className="text-indigo-300">{isHindi ? 'कोई कहानी नहीं मिली' : 'No stories found'}</p>
+            <p className="text-indigo-500 text-sm mt-1">{isHindi ? 'अलग खोज या फ़िल्टर आज़माएँ' : 'Try a different search or filter'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -470,6 +497,7 @@ function StoriesPage({ onOpenStory, language, allStories }: { onOpenStory: (stor
                 onClick={() => onOpenStory(story)}
                 isFavorite={isFavorite(story.id)}
                 onToggleFavorite={() => toggleFavorite(story.id)}
+                language={language}
               />
             ))}
           </div>
@@ -1002,7 +1030,7 @@ function SleepPage({ language }: { language: Language }) {
 }
 
 // ============ FAVORITES PAGE ============
-function FavoritesPage({ onOpenStory, language, allStories }: { onOpenStory: (story: Story) => void; language: Language; allStories: Story[] }) {
+function FavoritesPage({ onOpenStory, language, setLanguage, allStories }: { onOpenStory: (story: Story) => void; language: Language; setLanguage: (lang: Language) => void; allStories: Story[] }) {
   const { favorites, toggleFavorite } = useFavorites();
   const favoriteStories = allStories.filter(s => favorites.includes(s.id));
   const isHindi = language === 'hi';
@@ -1010,16 +1038,38 @@ function FavoritesPage({ onOpenStory, language, allStories }: { onOpenStory: (st
   return (
     <div className="pb-24 animate-fade-in">
       <div className="px-6 pt-8 pb-4">
-        <h1 className="text-2xl font-bold text-indigo-100 mb-1">My Favorite Stories</h1>
-        <p className="text-indigo-400 text-sm">Your dream shelf</p>
+        {/* Language Toggle */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => setLanguage(isHindi ? 'en' : 'hi')}
+            className="px-4 py-2 rounded-full bg-gradient-to-r from-amber-400/20 to-yellow-500/20 border border-amber-400/30 text-sm text-amber-200 flex items-center gap-2 hover:from-amber-400/30 hover:to-yellow-500/30 transition-all font-medium shadow-lg"
+            title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+          >
+            <span className="text-lg">{isHindi ? '🇬🇧' : '🇮🇳'}</span>
+            <span>{isHindi ? 'English' : 'हिंदी'}</span>
+          </button>
+        </div>
+        
+        <h1 className="text-2xl font-bold text-indigo-100 mb-1">
+          {isHindi ? 'मेरी पसंदीदा कहानियाँ' : 'My Favorite Stories'}
+        </h1>
+        <p className="text-indigo-400 text-sm">
+          {isHindi ? 'आपकी सपनों की अलमारी' : 'Your dream shelf'}
+        </p>
       </div>
 
       {favoriteStories.length === 0 ? (
         <div className="px-6 text-center py-16">
           <p className="text-5xl mb-4">🌙</p>
-          <h2 className="text-xl font-bold text-indigo-200 mb-2">Your dream shelf is empty</h2>
+          <h2 className="text-xl font-bold text-indigo-200 mb-2">
+            {isHindi ? 'आपकी सपनों की अलमारी खाली है' : 'Your dream shelf is empty'}
+          </h2>
           <p className="text-indigo-400 text-sm mb-6">
-            Save your favorite stories<br />and find them here tonight.
+            {isHindi ? (
+              <>अपनी पसंदीदा कहानियों को सहेजें<br />और आज रात यहाँ खोजें।</>
+            ) : (
+              <>Save your favorite stories<br />and find them here tonight.</>
+            )}
           </p>
         </div>
       ) : (
@@ -1063,8 +1113,12 @@ function SettingsPage({ language, setLanguage }: { language: Language; setLangua
   return (
     <div className="pb-24 animate-fade-in">
       <div className="px-6 pt-8 pb-4">
-        <h1 className="text-2xl font-bold text-indigo-100 mb-1">Settings</h1>
-        <p className="text-indigo-400 text-sm">Customize your experience</p>
+        <h1 className="text-2xl font-bold text-indigo-100 mb-1">
+          {isHindi ? 'सेटिंग्स' : 'Settings'}
+        </h1>
+        <p className="text-indigo-400 text-sm">
+          {isHindi ? 'अपना अनुभव अनुकूलित करें' : 'Customize your experience'}
+        </p>
       </div>
 
       {/* Language */}
@@ -1343,11 +1397,11 @@ export default function App() {
       case 'home':
         return <HomePage onNavigate={navigate} onOpenStory={openStory} language={language} setLanguage={setLanguage} allStories={allStories} />;
       case 'stories':
-        return <StoriesPage onOpenStory={openStory} language={language} allStories={allStories} />;
+        return <StoriesPage onOpenStory={openStory} language={language} setLanguage={setLanguage} allStories={allStories} />;
       case 'sleep':
         return <SleepPage language={language} />;
       case 'favorites':
-        return <FavoritesPage onOpenStory={openStory} language={language} allStories={allStories} />;
+        return <FavoritesPage onOpenStory={openStory} language={language} setLanguage={setLanguage} allStories={allStories} />;
       case 'settings':
         return <SettingsPage language={language} setLanguage={setLanguage} />;
       case 'reader':
